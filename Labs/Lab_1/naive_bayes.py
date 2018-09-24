@@ -15,13 +15,16 @@ positive_cls = 1
 negative_cls = 0
 
 # proportion of the training data set (as a decimal) aside for testing
-testing_proportion = 0.2
+testing_proportion = 0.2  # set to 0 if only training is required
+
 
 def remove_punctuations(s):
     return s.replace(',', '').replace('.', '').replace('!', '').replace('?', '').replace('-', '').replace('(', '').replace(')', '').replace('"', '').replace('$','').replace("'", '').replace(':', '').replace('*', '').replace('%', '')
 
 
 def randomize_datasource(filenames):
+    # separates and writes the cases into different files to make the
+    # program more ram efficient
     training = open('training.txt', 'w')
     testing = open('testing.txt', 'w')
     
@@ -106,9 +109,9 @@ def train_naive_bayes_classifier(files):
             log_likelyhood[positive_cls][word] = find_log_likelyhood(word, vocabulary[positive_cls], positive_den)
             log_likelyhood[negative_cls][word] = find_log_likelyhood(word, vocabulary[negative_cls], negative_den)
             
-    print('Number of positive training docs: ', n_positive_docs)
-    print('Number of negative training docs', n_negative_docs)
-    print('Total number of training docs', n_docs)
+    print('Number of positive training docs:', n_positive_docs)
+    print('Number of negative training docs:', n_negative_docs)
+    print('Total number of training docs:', n_docs)
     
     return log_likelyhood, logprior, vocabulary
 
@@ -147,6 +150,8 @@ def classify_doc(log_likelyhood, logprior, vocabulary, filename):
         outfile.close()
         
         print('Number of test docs', k)
+        if k == 0:
+            return None
         print('Accuracy (%)', (n/k)*100)
 
 
@@ -154,6 +159,7 @@ def main(argv):
     randomize_datasource(argv[1:])
     log_likelyhood, logprior, vocabulary = train_naive_bayes_classifier(['training.txt'])
     classify_doc(log_likelyhood, logprior, vocabulary, 'testing.txt')
+
     os.remove('training.txt')
     os.remove('testing.txt')
 
