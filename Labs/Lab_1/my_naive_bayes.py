@@ -7,6 +7,7 @@
 from math import log
 from random import random
 import os
+import sys
 
 # setup required before program runs
 positive_cls = 1
@@ -145,13 +146,10 @@ def argmax(sum_dict):
 # the doc should be a list of words
 def classify_doc(log_likelyhood, logprior, vocabulary, filename):
     with open(filename) as f:
-        n = 0
-        k = 0
         outfile = open('results_file.txt', 'w')
         for line in f:
             record = line.rstrip().split('\t')
             line = record[0]
-            c = int(record[1])
             doc = line.split(' ')
             classes = [positive_cls, negative_cls]
             s = {}
@@ -166,24 +164,13 @@ def classify_doc(log_likelyhood, logprior, vocabulary, filename):
             amx = argmax(s)
             print(amx, file=outfile)
 
-            if (amx == c):
-                n += 1
-            k += 1
         outfile.close()
         os.remove('testing.txt')
         os.remove('training.txt')
-
-        if k == 0:
-            return 0
-
-        print('Number of test docs', k)
-        print('Accuracy (%)', (n / k) * 100)
-
 
 log_likelyhood, logprior, vocabulary = train_naive_bayes_classifier(['training.txt'])
 
 # In[10]:
 
-
-classify_doc(log_likelyhood, logprior, vocabulary, 'testing.txt')
-
+if __name__ == '__main__':
+    classify_doc(log_likelyhood, logprior, vocabulary, sys.argv[1])
