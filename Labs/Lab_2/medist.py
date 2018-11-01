@@ -7,9 +7,15 @@
 import numpy as np
 import sys
 
+
 def medistance(source, target):
     n = len(source)
     m = len(target)
+
+    if n == 0:
+        return m
+    if m == 0:
+        return 0
     
     table = np.zeros((n+1, m+1))
     
@@ -33,8 +39,10 @@ def medistance(source, target):
 def del_cost(s):
     return len(s)
 
+
 def ins_cost(s):
     return len(s)
+
 
 def sub_cost(source, target):
     if source == target:
@@ -47,7 +55,11 @@ def sub_cost(source, target):
 
 
 def main(argv):
-    print(medistance(argv[1], argv[2]))
+    try:
+        print(medistance(argv[1], argv[2]))
+    except:
+        print('Invalid inputs')
+
 
 if __name__ == '__main__':
     main(sys.argv)
