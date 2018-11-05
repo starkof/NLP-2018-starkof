@@ -48,4 +48,4 @@ class LogisticRegression:
 
 if __name__ == '__main__':
     model = LogisticRegression()
-    model.tests()
+    model.temporary_tests()
