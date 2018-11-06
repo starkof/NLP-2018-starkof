@@ -36,12 +36,12 @@ def load_data(filename):
 
 
 def main():
-    training_set, testing_set = load_data('data/amazon_cells_labelled.txt')
+    training_set, testing_set = load_data('/Users/stephanofosuhene/Documents/Documents /Year 4 Sem 1/NLP/Labs/Lab_4/data/amazon_cells_labelled.txt')
     print(training_set)
 
-    classifier = nltk.NaiveBayesClassifier.train(training_set)
-
-    print('Accuracy:', nltk.classify.accuracy(classifier, testing_set) * 100)
+    # classifier = nltk.NaiveBayesClassifier.train(training_set)
+    #
+    # print('Accuracy:', nltk.classify.accuracy(classifier, testing_set) * 100)
 
 
 if __name__ == '__main__':

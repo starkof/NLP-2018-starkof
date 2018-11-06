@@ -4,7 +4,9 @@ from sklearn.naive_bayes import GaussianNB
 iris = datasets.load_iris()
 gnb = GaussianNB()
 
-print('Iris data:', iris)
+
+# print('Iris data:', len(iris.data), len(iris.target))
+print(iris)
 print()
 
 model = gnb.fit(iris.data, iris.target)
