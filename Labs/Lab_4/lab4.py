@@ -1,13 +1,9 @@
 # Lab 4 for Natural Language Processing at Ashesi University
 # by: Stephan N. Ofosuhene
 
-from logistic_regression import logistic_regression_classifier_sklearn
-from naive_bayes import naive_bayes_sklearn
 import numpy as np
+import pickle
 import sys
-
-
-# TODO: use pickled models
 
 
 def read_test_data(filename):
@@ -33,6 +29,10 @@ def main(argv):
     version = argv[2]
     test_filename = argv[3]
 
+    test_data = np.array([])
+
+    pickle_folder = 'models/'
+
     try:
         test_data = read_test_data(test_filename)
     except FileNotFoundError:
@@ -44,12 +44,12 @@ def main(argv):
     if classifier == 'nb':
 
         if version == 'u':
-            model = naive_bayes_sklearn.train(normalize=False)
+            model = pickle.load(open(pickle_folder + 'naive_bayes_u.pickle', 'rb'))
             predictions = model.predict(test_data)
             write_to_file(predictions, out_filename)
 
         elif version == 'n':
-            model = naive_bayes_sklearn.train(normalize=True)
+            model = pickle.load(open(pickle_folder + 'naive_bayes_n.pickle', 'rb'))
             predictions = model.predict(test_data)
             write_to_file(predictions, out_filename)
 
@@ -58,12 +58,12 @@ def main(argv):
 
     elif classifier == 'lr':
         if version == 'u':
-            model = logistic_regression_classifier_sklearn.train(normalize=False)
+            model = pickle.load(open(pickle_folder + 'logistic_u.pickle', 'rb'))
             predictions = model.predict(test_data)
             write_to_file(predictions, out_filename)
 
         elif version == 'n':
-            model = logistic_regression_classifier_sklearn.train(normalize=True)
+            model = pickle.load(open(pickle_folder + 'logistic_n.pickle', 'rb'))
             predictions = model.predict(test_data)
             write_to_file(predictions, out_filename)
 

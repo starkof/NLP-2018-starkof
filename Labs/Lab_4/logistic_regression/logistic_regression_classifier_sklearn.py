@@ -10,8 +10,6 @@ import numpy as np
 import nltk
 
 
-training_percent = 0.8
-
 base_dir = '/Users/stephanofosuhene/Documents/Documents /Year 4 Sem 1/NLP/Labs/Lab_4/data/'
 input_filenames = [base_dir + 'amazon_cells_labelled.txt', base_dir + 'imdb_labelled.txt', base_dir + 'yelp_labelled.txt']
 
@@ -35,7 +33,7 @@ def remove_punctuations(s):
         ')', '').replace('"', '').replace('$', '').replace("'", '').replace(':', '').replace('*', '').replace('%', '')
 
 
-def load_data(filenames, normalize=False):
+def load_data(filenames, normalize=False, train_percent=0.8):
     training_data = Bunch()
     training_data['data'] = []
     training_data['targets'] = []
@@ -53,7 +51,7 @@ def load_data(filenames, normalize=False):
                 if normalize:
                     line[0] = do_normalization(line[0])
 
-                if random() < training_percent:
+                if random() < train_percent:
                     training_data.data.append(line[0])
                     training_data.targets.append(int(line[1]))
                 else:
@@ -69,27 +67,16 @@ def load_data(filenames, normalize=False):
     return training_data, testing_data
 
 
-def train(normalize=False):
+def train(normalize=False, train_percent=0.8):
+    print('Training Logistic Regression model. Normalize =', normalize)
     filenames = input_filenames
     logistic_model = Pipeline([('tfidf', TfidfVectorizer()),
                                ('clf', LogisticRegression())])
 
-    training_data, test_data = load_data(filenames, normalize=normalize)
+    training_data, test_data = load_data(filenames, normalize=normalize, train_percent=train_percent)
 
     logistic_model.fit(training_data.data, training_data.targets)
 
-    predictions = logistic_model.predict(test_data.data)
+    # predictions = logistic_model.predict(test_data.data)
 
     return logistic_model
-
-
-def main(filenames):
-    print('Calculating list of accuracies')
-    accuracies = [train(normalize=False) for i in range(10)]
-
-    print()
-    print(sum(accuracies)/len(accuracies))
-
-
-if __name__ == '__main__':
-    main(input_filenames)

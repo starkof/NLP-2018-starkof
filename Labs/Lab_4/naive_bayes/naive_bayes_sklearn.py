@@ -9,10 +9,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 import numpy as np
 import nltk
-import pickle
 
-
-training_percent = 0.8
 base_dir = '/Users/stephanofosuhene/Documents/Documents /Year 4 Sem 1/NLP/Labs/Lab_4/data/'
 input_files = [base_dir + 'amazon_cells_labelled.txt', base_dir + 'imdb_labelled.txt', base_dir + 'yelp_labelled.txt']
 
@@ -36,7 +33,7 @@ def remove_punctuations(s):
         ')', '').replace('"', '').replace('$', '').replace("'", '').replace(':', '').replace('*', '').replace('%', '')
 
 
-def load_data(filenames, normalize=False):
+def load_data(filenames, normalize=False, train_percent=0.8):
     training_data = Bunch()
     training_data['data'] = []
     training_data['targets'] = []
@@ -54,7 +51,7 @@ def load_data(filenames, normalize=False):
                 if normalize:
                     line[0] = do_normalization(line[0])
 
-                if random() < training_percent:
+                if random() < train_percent:
                     training_data.data.append(line[0])
                     training_data.targets.append(int(line[1]))
                 else:
@@ -70,50 +67,18 @@ def load_data(filenames, normalize=False):
     return training_data, testing_data
 
 
-def raw_implementation(filename):
-    training_data, test_data = load_data(filename)
-
-    count_vect = CountVectorizer()
-    train_counts = count_vect.fit_transform(training_data.data)
-
-    tfid_transformer = TfidfTransformer(use_idf=False).fit(train_counts)
-    train_tfid = tfid_transformer.transform(train_counts)
-
-    trained_model = MultinomialNB().fit(train_tfid, training_data.targets)
-
-    test_counts = count_vect.transform(test_data.data)
-    test_tfid = tfid_transformer.transform(test_counts)
-
-    predicted = trained_model.predict(test_tfid)
-
-    n = 0
-    for label, prediction in zip(test_data.targets, predicted):
-        if label == prediction:
-            n += 1
-
-
-def train(normalize=False):
+def train(normalize=False, train_percent=0.8):
+    print('Training Naive Bayes model. Normalize =', normalize)
     input_filenames = input_files
+
     # implements the naive bayes classifier using a pipeline to simplify the code
     text_classifier = Pipeline([('vect', CountVectorizer()),
                                 ('tfidf', TfidfTransformer()),
                                 ('clf', MultinomialNB())])
 
-    training_data, test_data = load_data(input_filenames, normalize=normalize)
+    training_data, test_data = load_data(input_filenames, normalize=normalize, train_percent=train_percent)
 
     text_classifier.fit(training_data.data, training_data.targets)
 
-    predictions = text_classifier.predict(test_data.data)
-
-    print(np.mean(predictions == test_data.targets))
-
     return text_classifier
 
-
-def main():
-    accuracies = [train(normalize=True) for i in range(10)]
-
-    print(sum(accuracies)/len(accuracies))
-
-
-train()
