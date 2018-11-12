@@ -1,20 +1,19 @@
-# Implementation of naive bayes classifier with sklearn
+# A text classifier using logistic regression
 # by: Stephan N. Ofosuhene
 
-from random import random
-from sklearn.utils import Bunch
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
+from sklearn.utils import Bunch
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from random import random
 import numpy as np
 import nltk
-import pickle
 
 
 training_percent = 0.8
+
 base_dir = '/Users/stephanofosuhene/Documents/Documents /Year 4 Sem 1/NLP/Labs/Lab_4/data/'
-input_files = [base_dir + 'amazon_cells_labelled.txt', base_dir + 'imdb_labelled.txt', base_dir + 'yelp_labelled.txt']
+input_filenames = [base_dir + 'amazon_cells_labelled.txt', base_dir + 'imdb_labelled.txt', base_dir + 'yelp_labelled.txt']
 
 
 def do_normalization(text):
@@ -70,50 +69,27 @@ def load_data(filenames, normalize=False):
     return training_data, testing_data
 
 
-def raw_implementation(filename):
-    training_data, test_data = load_data(filename)
-
-    count_vect = CountVectorizer()
-    train_counts = count_vect.fit_transform(training_data.data)
-
-    tfid_transformer = TfidfTransformer(use_idf=False).fit(train_counts)
-    train_tfid = tfid_transformer.transform(train_counts)
-
-    trained_model = MultinomialNB().fit(train_tfid, training_data.targets)
-
-    test_counts = count_vect.transform(test_data.data)
-    test_tfid = tfid_transformer.transform(test_counts)
-
-    predicted = trained_model.predict(test_tfid)
-
-    n = 0
-    for label, prediction in zip(test_data.targets, predicted):
-        if label == prediction:
-            n += 1
-
-
 def train(normalize=False):
-    input_filenames = input_files
-    # implements the naive bayes classifier using a pipeline to simplify the code
-    text_classifier = Pipeline([('vect', CountVectorizer()),
-                                ('tfidf', TfidfTransformer()),
-                                ('clf', MultinomialNB())])
+    filenames = input_filenames
+    logistic_model = Pipeline([('tfidf', TfidfVectorizer()),
+                               ('clf', LogisticRegression())])
 
-    training_data, test_data = load_data(input_filenames, normalize=normalize)
+    training_data, test_data = load_data(filenames, normalize=normalize)
 
-    text_classifier.fit(training_data.data, training_data.targets)
+    logistic_model.fit(training_data.data, training_data.targets)
 
-    predictions = text_classifier.predict(test_data.data)
+    predictions = logistic_model.predict(test_data.data)
 
-    print(np.mean(predictions == test_data.targets))
-
-    return text_classifier
+    return logistic_model
 
 
-def main():
-    accuracies = [train(normalize=True) for i in range(10)]
+def main(filenames):
+    print('Calculating list of accuracies')
+    accuracies = [train(normalize=False) for i in range(10)]
 
+    print()
     print(sum(accuracies)/len(accuracies))
 
 
-train()
+if __name__ == '__main__':
+    main(input_filenames)
