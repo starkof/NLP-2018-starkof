@@ -5,6 +5,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.utils import Bunch
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import average_precision_score
+from sklearn.metrics import recall_score
+
 from random import random
 import numpy as np
 import nltk
@@ -18,7 +21,7 @@ def do_normalization(text):
     stemmer = nltk.LancasterStemmer()
     lemmatizer = nltk.WordNetLemmatizer()
 
-    text = text.lower()
+    # text = text.lower()
 
     text = ' '.join([stemmer.stem(s) for s in text.split(' ')])
     text = ' '.join([lemmatizer.lemmatize(s) for s in text.split(' ')])
@@ -67,7 +70,7 @@ def load_data(filenames, normalize=False, train_percent=0.8):
     return training_data, testing_data
 
 
-def train(normalize=False, train_percent=0.8):
+def train(normalize=False, train_percent=0.8, return_accuracy=False):
     print('Training Logistic Regression model. Normalize =', normalize)
     filenames = input_filenames
     logistic_model = Pipeline([('tfidf', TfidfVectorizer()),
@@ -77,6 +80,46 @@ def train(normalize=False, train_percent=0.8):
 
     logistic_model.fit(training_data.data, training_data.targets)
 
-    # predictions = logistic_model.predict(test_data.data)
+    if return_accuracy:
+        predictions = logistic_model.predict(test_data.data)
+        accuracy = np.mean(predictions == test_data.targets)
+
+        avg_precision = average_precision_score(test_data.targets, predictions)
+        # print('Average precision:', avg_precision)
+
+        recall = recall_score(test_data.targets, predictions)
+        # print('Recall:', recall * 100)
+
+        return accuracy, recall
 
     return logistic_model
+
+
+def test_model():
+    metrics = [train(normalize=True, return_accuracy=True) for i in range(10)]
+
+    accuracy = 0
+    recall = 0
+    for a, p in metrics:
+        accuracy += a
+        recall += p
+
+    print()
+    print('Average accuracy:', accuracy/len(metrics) * 100)
+    print('Average recall:', recall/len(metrics) * 100)
+    print()
+
+    metrics = [train(normalize=False, return_accuracy=True) for i in range(10)]
+
+    accuracy = 0
+    recall = 0
+    for a, p in metrics:
+        accuracy += a
+        recall += p
+
+    print()
+    print('Average accuracy:', accuracy / len(metrics) * 100)
+    print('Average recall:', recall/len(metrics) * 100)
+
+
+test_model()

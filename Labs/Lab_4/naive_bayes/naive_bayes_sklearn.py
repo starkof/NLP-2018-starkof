@@ -18,6 +18,7 @@ def do_normalization(text):
     stemmer = nltk.LancasterStemmer()
     lemmatizer = nltk.WordNetLemmatizer()
 
+    # removing this line improve the performance of the classifier after normalization
     text = text.lower()
 
     text = ' '.join([stemmer.stem(s) for s in text.split(' ')])
@@ -67,7 +68,7 @@ def load_data(filenames, normalize=False, train_percent=0.8):
     return training_data, testing_data
 
 
-def train(normalize=False, train_percent=0.8):
+def train(normalize=False, train_percent=0.8, return_accuracy=False):
     print('Training Naive Bayes model. Normalize =', normalize)
     input_filenames = input_files
 
@@ -80,5 +81,22 @@ def train(normalize=False, train_percent=0.8):
 
     text_classifier.fit(training_data.data, training_data.targets)
 
+    if return_accuracy:
+        predictions = text_classifier.predict(test_data.data)
+        accuracy = np.mean(predictions == test_data.targets)
+
+        return accuracy
+
     return text_classifier
 
+
+def test_model():
+    accuracies = [train(normalize=True, return_accuracy=True) for i in range(10)]
+    print('Average accuracy: ', sum(accuracies)/len(accuracies) * 100)
+    print()
+
+    accuracies = [train(normalize=False, return_accuracy=True) for i in range(10)]
+    print('Average accuracy: ', sum(accuracies)/len(accuracies) * 100)
+
+
+test_model()
