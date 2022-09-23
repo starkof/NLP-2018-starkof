@@ -30,7 +30,7 @@ nltk==3.3
 numpy==1.15.3
 plac==0.9.6
 preshed==2.0.1
-protobuf==3.6.1
+protobuf==3.18.3
 pyparsing==2.3.0
 python-dateutil==2.7.5
 PyYAML==3.13
